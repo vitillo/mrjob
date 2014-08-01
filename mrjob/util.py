@@ -26,7 +26,6 @@ import glob
 import hashlib
 import itertools
 import logging
-import lzma
 import os
 import pipes
 import shlex
@@ -34,6 +33,11 @@ import sys
 import tarfile
 import zipfile
 import zlib
+
+try:
+    import lzma
+except ImportError:
+    lzma = None
 
 try:
     import bz2
@@ -436,6 +440,9 @@ def read_file(path, fileobj=None, yields_lines=True, cleanup=None):
             else:
                 lines = bunzip2_stream(f)
         elif path.endswith('.lzma') or path.endswith('.xz'):
+            if lzma is None:
+                raise Exception('lzma module was not successfully imported'
+                                ' (likely not installed).')
             lines = buffer_iterator_to_line_iterator(lzma_stream(f))
         else:
             if yields_lines:
