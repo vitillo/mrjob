@@ -8,6 +8,7 @@ docutils==0.11
 sphinx-better-theme==0.1.5
 Sphinx-PyPI-upload==0.2.1
 smartypants==1.8.2
+pyliblzma==0.5.0
 
 # optional: requirements for livereload
 livereload==1.0.1

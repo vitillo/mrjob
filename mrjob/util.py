@@ -26,6 +26,7 @@ import glob
 import hashlib
 import itertools
 import logging
+import lzma
 import os
 import pipes
 import shlex
@@ -434,6 +435,8 @@ def read_file(path, fileobj=None, yields_lines=True, cleanup=None):
                                 ' (likely not installed).')
             else:
                 lines = bunzip2_stream(f)
+        elif path.endswith('.lzma') or path.endswith('.xz'):
+            lines = buffer_iterator_to_line_iterator(lzma_stream(f))
         else:
             if yields_lines:
                 lines = f
@@ -523,6 +526,27 @@ def gunzip_stream(fileobj, bufsize=1024):
         if data:
             yield data
 
+def lzma_stream(fileobj, bufsize=1024):
+    """Decompress xzipped data on the fly.
+
+    :param fileobj: object supporting ``read()``
+    :param bufsize: number of bytes to read from *fileobj* at a time.
+
+    .. warning::
+
+        This yields decompressed chunks; it does *not* split on lines. To get
+        lines, wrap this in :py:func:`buffer_iterator_to_line_iterator`.
+    """
+    decompressor = lzma.LZMADecompressor()
+    while True:
+        chunk = fileobj.read(bufsize)
+        if not chunk:
+            if decompressor.flush():
+                raise AssertionError
+            return
+        else:
+            data = decompressor.decompress(chunk)
+            yield data
 
 @contextlib.contextmanager
 def save_current_environment():

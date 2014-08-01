@@ -21,6 +21,7 @@ try:
             'boto>=2.2.0',
             'PyYAML',
             'simplejson>=2.0.9',
+            'pyliblzma>=0.5.0',
         ],
         'provides': ['mrjob'],
         'test_suite': 'tests.suite.load_tests',
